@@ -13,10 +13,6 @@ class DeepFilters extends Filters
     {
         $field = reset($fields);
 
-        if (isset($this->filters[$field])) {
-            throw new LogicException(sprintf('Field %s already defined.', $field));
-        }
-
         $fieldChain = [$operator => $value];
         foreach (array_reverse($fields) as $newField) {
             $fieldChain = [
@@ -24,7 +20,10 @@ class DeepFilters extends Filters
             ];
         }
 
-        $this->filters[$field] = $fieldChain[$field];
+        $this->filters[$field] =
+            isset($this->filters[$field])
+                ? array_merge_recursive($this->filters[$field], $fieldChain[$field])
+                : $fieldChain[$field];
 
         return $this;
     }
